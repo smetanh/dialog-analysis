@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "diploma2"
+version = "0.1.0"
+description = ""
+authors = ["Stepan Filippov <stef-2020@yandex.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+transformers = "^4.39.3"
+torch = "^2.2.2"
+aiogram = "^3.6.0"
+python-dotenv = "^1.0.1"
+deepl-cli = "^0.7.0"
+googletrans = "4.0.0rc1"
+deepl-translate = "^1.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
