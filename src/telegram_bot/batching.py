@@ -2,7 +2,6 @@ from aiogram.types import Message
 
 
 async def batch_sending_messages(message: Message, text: str, action: str = "answer" or "reply"):
-
     batch = 4096
 
     if len(text) > batch:

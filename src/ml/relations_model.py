@@ -1,9 +1,6 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from googletrans import Translator
-import deepl
 from dotenv import load_dotenv
-import textwrap
-
+import deepl
 import logging
 
 from os import getenv
@@ -13,9 +10,9 @@ from os import getenv
 
 load_dotenv("../config.env")
 RELATIONS_MODEL_NAME = getenv("RELATIONS_MODEL_NAME")
-SUMMARIZATION_MODEL_NAME = getenv("SUMMARIZATION_MODEL_NAME")
+DEEPL_TOKEN = getenv("DEEPL_TOKEN")
 
-translator = Translator()
+translator = deepl.Translator(DEEPL_TOKEN)
 
 special_tokens = [
     "AtLocation",
@@ -80,38 +77,38 @@ def load_tokenizer(model_name=RELATIONS_MODEL_NAME):
     return AutoTokenizer.from_pretrained(model_name)
 
 
-def translate(text: str) -> str:
-    language = translator.detect(text).lang
-    # if language != "en":
-    #     text = translator.translate(text, dest='en').text
-    return language
+def translate(text: str, target_language: str) -> str:
+    if target_language.lower() == "en":
+        target_language = "en-us"
+    result = translator.translate_text(text, target_lang=target_language).text
+    return result
 
 
-def translate_2(text: str, src_lang: str) -> str:
-    translator_2 = deepl.translate(source_language=src_lang, target_language="EN", text=text)
-    return translator_2
+def translate0(text: str, source_language: str = "ru_RU", target_language: str = "en_XX") -> str:
+
+    import requests
+
+    API_URL = "https://api-inference.huggingface.co/models/facebook/mbart-large-50-many-to-many-mmt"
+    headers = {"Authorization": "Bearer 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"}
+
+    def query(payload):
+        response = requests.post(API_URL, headers=headers, json=payload)
+        return response.json()
+
+    output = query({
+        "inputs": text,
+        "parameters": {"src_lang": source_language, "tgt_lang": target_language}
+    })
+
+    # print(output)
+
+    return output[0]["translation_text"]
 
 
-# for token in special_tokens:
-#     if token not in tokenizer.vocab:
-#         tokenizer.add_tokens(token)
-
-# num_special_tokens = len(special_tokens)
-# special_token_ids = list(range(tokenizer.vocab_size, tokenizer.vocab_size + num_special_tokens))
-# special_token_vectors = model.embeddings.word_embeddings(special_token_ids)
-# model.embeddings.word_embeddings.weight.data[special_token_ids] = special_token_vectors
-
-# tokenizer.add_tokens(special_tokens)
-# model.resize_token_embeddings(len(tokenizer))
-
-
-def run_model(model, tokenizer, prompt: str, num_generations: int = 3) -> str:
-    # prompt_en, language = translate(prompt)
-    # language = translate(prompt)
-    # prompt_en = translate_2(prompt, language)
-    prompt_en = prompt
+def run_model(model, tokenizer, prompt_en: str, source_language: str, num_generations: int = 3) -> str:
+    # prompt_en = translate(prompt, "en")
+    # prompt_en = prompt
     # logging.info(prompt_en)
-
     output = []
     t = [
         "AtLocation",
@@ -154,18 +151,10 @@ def run_model(model, tokenizer, prompt: str, num_generations: int = 3) -> str:
         )
 
     output = "\n".join(output)
-
-    # if language != "en":
-        # output_local = [translator.translate(i, dest=language).text for i in output]
-        # output_local = [translate_2(i) for i in output]
-        # output_local = "\n".join(output_local)
-        # output_wrap = textwrap.wrap(output, 3999)
-        # output_local = ""
-        # for wrap in output_wrap:
-        #     output_local += translate_2(wrap, language)
-
-        # output_local = translate_2(output, language)
-        # logging.info(output_local)
-        # return output_local
+    logging.info("OUTPUT: " + output)
+    if source_language != "en":
+        t = translate(output, source_language)
+        logging.info("TRANSLATE: " + t)
+        return t
 
     return output

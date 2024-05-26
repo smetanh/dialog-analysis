@@ -11,9 +11,10 @@ transformers = "^4.39.3"
 torch = "^2.2.2"
 aiogram = "^3.6.0"
 python-dotenv = "^1.0.1"
-deepl-cli = "^0.7.0"
 googletrans = "4.0.0rc1"
-deepl-translate = "^1.2.0"
+emoji = "^2.12.1"
+pymemcache = "^4.0.0"
+deepl = "^1.18.0"
 
 
 [build-system]
