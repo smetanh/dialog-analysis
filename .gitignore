@@ -1,7 +1,0 @@
-src/config.env
-venv/
-.idea/
-.env
-src/ml/test.py
-src/ml/test2.py
-src/ml/test3.py
