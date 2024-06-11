@@ -4,7 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
 
-class ModelMiddleware(BaseMiddleware):
+class MLModelMiddleware(BaseMiddleware):
     def __init__(self, model, tokenizer):
         self.model = model
         self.tokenizer = tokenizer
@@ -18,3 +18,4 @@ class ModelMiddleware(BaseMiddleware):
         data["model"] = self.model
         data["tokenizer"] = self.tokenizer
         return await handler(event, data)
+

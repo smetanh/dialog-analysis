@@ -1,11 +1,11 @@
+from handlers import start, analysis, query, clear
+from middlewares.ml import MLModelMiddleware
+from src.ml.relations_model import load_model, load_tokenizer
+
 import asyncio
 import logging
 import sys
 from os import getenv
-
-from handlers import start, analysis, query, clear
-from middlewares.model import ModelMiddleware
-from src.ml.relations_model import load_model, load_tokenizer
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -33,7 +33,7 @@ class TelegramBot:
         )
         model = load_model()
         tokenizer = load_tokenizer()
-        self.dp.message.middleware(ModelMiddleware(model, tokenizer))
+        self.dp.message.middleware(MLModelMiddleware(model, tokenizer))
         await self.bot.delete_webhook(drop_pending_updates=True)
         await self.dp.start_polling(self.bot)
 

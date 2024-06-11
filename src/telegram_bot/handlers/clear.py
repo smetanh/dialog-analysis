@@ -1,9 +1,9 @@
+from collections import deque
+
 from aiogram import Router, F, html
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
-
-from collections import deque
 
 
 router = Router()
@@ -13,7 +13,7 @@ router = Router()
 async def clear_handler(message: Message, state: FSMContext) -> None:
     try:
         await state.update_data({
-            "data": deque()
+            "previous_messages": deque()
         })
         _message = "Context has been reset!"
 

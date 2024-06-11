@@ -1,33 +1,30 @@
-import logging
+from collections import deque
 
 from aiogram import Router, F, html
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from collections import deque
 
 router = Router()
 
 
 def user_prefix(message: Message) -> str:
-    default_user_prefix = 'Person "'
-
     if message.forward_origin is not None:
-        match str(message.forward_origin.type):
-            case "MessageOriginType.CHANNEL":
-                message_prefix = message.forward_origin.chat.title
-            case "MessageOriginType.USER":
-                message_prefix = message.forward_origin.sender_user.first_name
-            case "MessageOriginType.CHAT":
-                message_prefix = message.forward_origin.chat.title
-            case "MessageOriginType.HIDDEN_USER":
-                message_prefix = 'X"'
-            case _:
-                message_prefix = 'X"'
+        # match str(message.forward_origin.type):
+        #     case "MessageOriginType.CHANNEL":
+        #         username = message.forward_origin.chat.title
+        #     case "MessageOriginType.USER":
+        #         username = message.forward_origin.sender_user.first_name
+        #     case "MessageOriginType.CHAT":
+        #         username = message.forward_origin.chat.title
+        #     case "MessageOriginType.HIDDEN_USER":
+        #         username = "X"
+        #     case _:
+        username = "Человек"
     else:
-        message_prefix = message.from_user.first_name
+        username = message.from_user.first_name
 
-    _message = default_user_prefix + message_prefix + '": ' + message.text
+    _message = f'"{username}": {message.text}'
 
     return _message
 
@@ -37,7 +34,7 @@ def is_first_message(data: dict) -> bool:
 
 
 def messages_limit_reached(text: deque) -> bool:
-    limit = 256
+    limit = 1024
 
     if len(text) > limit:
         text.popleft()
@@ -53,16 +50,16 @@ async def query_handler(message: Message, state: FSMContext) -> None:
         if is_first_message(data):
             text = deque()
         else:
-            text = data["data"]
+            text = data["previous_messages"]
 
         message_with_user_prefix = user_prefix(message)
         text.append(message_with_user_prefix)
 
         if messages_limit_reached(text):
-            await message.answer("Message limit exceeded, last 256 saved")
+            await message.answer("Message limit exceeded, last 1024 saved")
 
         await state.update_data({
-            "data": text
+            "previous_messages": text
         })
 
     except TypeError:
